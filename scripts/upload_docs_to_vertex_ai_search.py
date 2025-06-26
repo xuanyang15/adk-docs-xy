@@ -1,4 +1,5 @@
 import os
+import markdown
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -54,36 +55,41 @@ def upload_directory_to_gcs(
     storage_client = storage.Client(project=project_id)
     bucket = storage_client.bucket(bucket_name)
     for root, dirs, files in os.walk(source_directory):
-        # Exclude hidden dirs and files
-
-        # 1. Modify the 'dirs' list in-place to prevent os.walk from descending
+        # Modify the 'dirs' list in-place to prevent os.walk from descending
         # into hidden directories.
         dirs[:] = [d for d in dirs if not d.startswith(".")]
 
-        # 2. Filter out hidden files from the current directory's file list.
-        files = [f for f in files if not f.startswith(".")]
+        # Keep only .md and .py files.
+        files = [f for f in files if f.endswith(".md") or f.endswith(".py")]
 
         for filename in files:
-            if not filename.lower().endswith(".md") and not filename.lower().endswith(
-                ".py"
-            ):
-                continue
-
             local_path = os.path.join(root, filename)
+
             relative_path = os.path.relpath(local_path, source_directory)
             gcs_path = os.path.join(prefix, relative_path)
 
             try:
-                blob = bucket.blob(gcs_path)
                 content_type = None
                 if filename.lower().endswith(".md"):
-                    # Vertex AI search doesn't recognize text/markdown, use text/html instead
+                    # Vertex AI search doesn't recognize text/markdown,
+                    # convert it to html and use text/html instead
                     content_type = "text/html"
-                if filename.lower().endswith(".py"):
+                    with open(local_path, "r", encoding="utf-8") as f:
+                        md_content = f.read()
+                    html_content = markdown.markdown(md_content, output_format='html5', encoding='utf-8')
+                    if len(html_content) == 0:
+                        print("  - Skipped empty file: " + local_path)
+                        continue
+                    gcs_path = gcs_path.removesuffix(".md") + ".html"
+                    bucket.blob(gcs_path).upload_from_string(
+                        html_content, content_type=content_type
+                    )
+                else:  # Python files
                     # Use plain text for Python code
                     content_type = "text/plain"
-
-                blob.upload_from_filename(local_path, content_type=content_type)
+                    bucket.blob(gcs_path).upload_from_filename(
+                        local_path, content_type=content_type
+                    )
                 type_msg = (
                     f"(type {content_type})" if content_type else "(type auto-detect)"
                 )
@@ -119,12 +125,14 @@ def import_from_gcs_to_vertex_ai(
             f"/dataStores/{data_store_id}/branches/default_branch"
         )
 
-        gcs_uri = f"gs://{gcs_bucket}/{gcs_prefix}/*"
+        gcs_uri = f"gs://{gcs_bucket}/{gcs_prefix}/**"
 
         request = discoveryengine.ImportDocumentsRequest(
             parent=parent,
             # Specify the GCS source and use "content" for unstructed data.
-            gcs_source=discoveryengine.GcsSource(input_uris=[gcs_uri], data_schema="content"),
+            gcs_source=discoveryengine.GcsSource(
+                input_uris=[gcs_uri], data_schema="content"
+            ),
             reconciliation_mode=discoveryengine.ImportDocumentsRequest.ReconciliationMode.FULL,
         )
 
