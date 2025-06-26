@@ -150,12 +150,14 @@ def import_from_gcs_to_vertex_ai(
 
 def main():
     """Main function to upload the docs."""
+    # 1. Cleanup the GSC for a clean start.
     if not cleanup_gcs_prefix(
         GOOGLE_CLOUD_PROJECT, GCS_BUCKET_NAME, GCS_DESTINATION_PREFIX
     ):
         print("Failed to clean up GCS. Exiting...")
         return
 
+    # 2. Upload the docs to GCS.
     if not upload_directory_to_gcs(
         LOCAL_DIRECTORY_PATH,
         GOOGLE_CLOUD_PROJECT,
