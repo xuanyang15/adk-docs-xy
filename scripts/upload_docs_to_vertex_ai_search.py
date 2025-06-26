@@ -76,8 +76,10 @@ def upload_directory_to_gcs(
                 blob = bucket.blob(gcs_path)
                 content_type = None
                 if filename.lower().endswith(".md"):
+                    # Vertex AI search doesn't recognize text/markdown, use text/html instead
                     content_type = "text/html"
                 if filename.lower().endswith(".py"):
+                    # Use plain text for Python code
                     content_type = "text/plain"
 
                 blob.upload_from_filename(local_path, content_type=content_type)
