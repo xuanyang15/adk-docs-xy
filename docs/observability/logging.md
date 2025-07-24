@@ -52,6 +52,12 @@ The available log levels for the `--log-level` option are:
 - `ERROR`
 - `CRITICAL`
 
+> For the `DEBUG` level, you can also use `-v` or `--verbose` as a a shortcut for `--log_level DEBUG`. For example:
+> 
+> ```bash
+> adk web -v path/to/your/agents_dir
+> ```
+
 This command-line setting overrides any programmatic configuration (like `logging.basicConfig`) you might have in your code for the ADK's loggers.
 
 ### Log Levels
