@@ -138,6 +138,8 @@ nav:
     - MCP tools: tools/mcp-tools.md
     - OpenAPI tools: tools/openapi-tools.md
     - Authentication: tools/authentication.md
+    - Parallel Tool Execution: tools/parallel_tool_execution.md
+    - Enterprise Web Search: tools/enterprise_web_search.md
   - Running Agents:
     - Agent Runtime: runtime/index.md
     - Runtime Config: runtime/runconfig.md
