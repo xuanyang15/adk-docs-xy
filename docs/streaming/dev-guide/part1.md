@@ -144,7 +144,74 @@ graph TB
 |:----------------------------|:------------------|:------------------------------|
 | **Web / Mobile**: Frontend applications that users interact with, handling UI/UX, user input capture, and response display<br><br>**[WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket) / [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) Server**: Real-time communication server (such as [FastAPI](https://fastapi.tiangolo.com/)) that manages client connections, handles streaming protocols, and routes messages between clients and ADK<br><br>**Agent**: Custom AI agent definition with specific instructions, tools, and behavior tailored to your application's needs | **[LiveRequestQueue](https://github.com/google/adk-python/blob/main/src/google/adk/agents/live_request_queue.py)**: Message queue that buffers and sequences incoming user messages (text content, audio blobs, control signals) for orderly processing by the agent<br><br>**[Runner](https://github.com/google/adk-python/blob/main/src/google/adk/runners.py)**: Execution engine that orchestrates agent sessions, manages conversation state, and provides the `run_live()` streaming interface<br><br>**[LLM Flow](https://github.com/google/adk-python/blob/main/src/google/adk/flows/llm_flows/base_llm_flow.py)**: Processing pipeline that handles streaming conversation logic, manages context, and coordinates with language models<br><br>**[GeminiLlmConnection](https://github.com/google/adk-python/blob/main/src/google/adk/models/gemini_llm_connection.py)**: Abstraction layer that bridges ADK's streaming architecture with Gemini Live API, handling protocol translation and connection management | **[Gemini Live API](https://ai.google.dev/gemini-api/docs/live)**: Google's real-time language model service that processes streaming input, generates responses, handles interruptions, supports multimodal content (text, audio, video), and provides advanced AI capabilities like function calling and contextual understanding |
 
-## 1.3 Setting Up Your Development Environment
+## 1.3 Live Session Resumption
+
+Live session resumption is a powerful feature in ADK that enhances the robustness of streaming agents. It allows an agent to resume a live session after an unexpected disconnection, ensuring a seamless user experience without losing the conversation context.
+
+### How it Works
+
+When a live streaming session is active, the ADK maintains a `live_session_resumption_handle` within the `InvocationContext`. This handle is a unique identifier for the session. If the connection is dropped, the client can reconnect and provide this handle to the ADK. The ADK will then attempt to resume the session from where it left off.
+
+The `BaseLlmFlow` in the ADK is responsible for managing the session resumption logic. When a new connection is established with a `live_session_resumption_handle`, the flow transparently reconnects to the session, so the model is unaware of the disconnection.
+
+### Example: Handling Session Resumption in a Client Application
+
+Here is a conceptual example of how a client application would handle live session resumption. The client would need to store the `live_session_resumption_handle` and use it to reconnect if the connection is lost.
+
+```python
+import asyncio
+from google.adk.agents import LiveRequestQueue
+from google.adk.runners import InMemoryRunner
+
+# Assume 'agent' is a pre-configured ADK agent
+# and 'run_live_session' is a function that runs the agent
+# and returns the live_session_resumption_handle.
+
+async def main():
+    session_handle = None
+    while True:
+        try:
+            # Attempt to connect or reconnect to the live session
+            session_handle = await run_live_session(session_handle)
+        except ConnectionError as e:
+            print(f"Connection lost: {e}. Attempting to reconnect in 5 seconds...")
+            await asyncio.sleep(5)
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            break
+
+async def run_live_session(resumption_handle: str | None):
+    # This function would typically be part of your application's backend
+    # that interacts with the ADK.
+    runner = InMemoryRunner()
+    live_request_queue = LiveRequestQueue()
+
+    # If a resumption_handle is provided, set it in the invocation context
+    # This is a conceptual representation. The actual implementation may vary.
+    invocation_context = runner.get_invocation_context(
+        agent=agent,
+        live_request_queue=live_request_queue
+    )
+    invocation_context.live_session_resumption_handle = resumption_handle
+
+    # Start the live session
+    async for event in runner.run_live(invocation_context):
+        # Process events from the agent
+        print(event)
+
+        # In a real application, you would extract the new handle
+        # from the event and persist it.
+        # new_handle = event.get_new_session_handle()
+        # if new_handle:
+        #     resumption_handle = new_handle
+
+    return resumption_handle # In a real app, this would be the updated handle
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## 1.4 Setting Up Your Development Environment
 
 Now that you understand the gist of ADK Bidi-streaming architecture and the value it provides, it's time to get hands-on experience. This section will prepare your development environment so you can start building the streaming agents and applications described in the previous sections.
 
@@ -162,9 +229,9 @@ python -m venv .venv
 # macOS/Linux:
 source .venv/bin/activate
 # Windows CMD:
-# .venv\Scripts\activate.bat
+# .venv\\Scripts\\activate.bat
 # Windows PowerShell:
-# .venv\Scripts\Activate.ps1
+# .venv\\Scripts\\Activate.ps1
 ```
 
 #### 2. Install ADK

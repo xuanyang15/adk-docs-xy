@@ -188,6 +188,41 @@ For deployed applications, a service account is the standard method.
 
 ## Using Anthropic models
 
+### Python
+
+![python_only](https://img.shields.io/badge/Supported_in-Python-blue)
+
+To use Anthropic's Claude models with the Python ADK, you can use the `Claude` wrapper class. This class allows you to configure the model and its parameters, including `max_tokens`.
+
+**Integration:**
+
+Instantiate the `Claude` class, providing the desired Claude model name and optionally the `max_tokens` parameter. Then, pass this `Claude` instance to your `LlmAgent`.
+
+**Example:**
+
+```python
+from google.adk.agents import LlmAgent
+from google.adk.models.anthropic_llm import Claude
+from google.adk.models.registry import LLMRegistry
+
+# Register the Claude class to use it with LlmAgent
+LLMRegistry.register(Claude)
+
+# --- Example Agent using Claude 3 Sonnet on Vertex AI with max_tokens ---
+
+# Standard model name for Claude 3 Sonnet on Vertex AI
+claude_model_vertexai = "claude-3-sonnet@20240229"
+
+agent_claude_vertexai = LlmAgent(
+    model=Claude(model=claude_model_vertexai, max_tokens=4096),
+    name="claude_vertexai_agent",
+    instruction="You are an assistant powered by Claude 3 Sonnet on Vertex AI.",
+    # ... other agent parameters
+)
+```
+
+### Java
+
 ![java_only](https://img.shields.io/badge/Supported_in-Java-orange){ title="This feature is currently available for Java. Python support for direct Anthropic API (non-Vertex) is via LiteLLM."}
 
 You can integrate Anthropic's Claude models directly using their API key or from a Vertex AI backend into your Java ADK applications by using the ADK's `Claude` wrapper class.
@@ -497,7 +532,7 @@ Look for a line like the following:
 Request Sent from LiteLLM:
 curl -X POST \
 http://localhost:11434/api/chat \
--d '{'model': 'mistral-small3.1', 'messages': [{'role': 'system', 'content': ...
+-d '{\'model\': \'mistral-small3.1\', \'messages\': [{\'role\': \'system\', \'content\': ...
 ```
 
 ### Self-Hosted Endpoint (e.g., vLLM)
