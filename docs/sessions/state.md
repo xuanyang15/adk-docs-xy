@@ -346,6 +346,31 @@ For more comprehensive details on context objects, refer to the [Context documen
 * Updates the session's `last_update_time`.
 * Ensures thread-safety for concurrent updates.
 
+### Safely Accessing State with `.get()`
+
+Since `session.state` behaves like a Python dictionary, you can use the `.get()` method to safely retrieve a value. This is particularly useful when you are not sure if a key exists in the state. Using `.get()` avoids a `KeyError` and allows you to provide a default value if the key is not found.
+
+**Example:**
+
+=== "Python"
+
+    ```python
+    # Assume 'user_preference_theme' is not in session.state
+    theme = session.state.get('user_preference_theme')  # Returns None, no error
+    print(f"Theme: {theme}")
+
+    # Provide a default value
+    theme = session.state.get('user_preference_theme', 'light') # Returns 'light'
+    print(f"Theme: {theme}")
+
+    # If the key exists, it returns the value as usual
+    session.state['user_preference_theme'] = 'dark'
+    theme = session.state.get('user_preference_theme', 'light') # Returns 'dark'
+    print(f"Theme: {theme}")
+    ```
+
+This approach is cleaner and safer than checking for the key's existence with `if 'key' in session.state:`.
+
 ### ⚠️ A Warning About Direct State Modification
 
 Avoid directly modifying the `session.state` collection (dictionary/Map) on a `Session` object that was obtained directly from the `SessionService` (e.g., via `session_service.get_session()` or `session_service.create_session()`) *outside* of the managed lifecycle of an agent invocation (i.e., not through a `CallbackContext` or `ToolContext`). For example, code like `retrieved_session = await session_service.get_session(...); retrieved_session.state['key'] = value` is problematic.
