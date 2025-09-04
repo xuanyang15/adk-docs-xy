@@ -21,6 +21,21 @@ impactful applications.
 
 This guide provides a step-by-step walkthrough for deploying an agent from your local environment.
 
+!!! tip "Deploy with Agent Starter Pack"
+    Try the [Agent Starter Pack](https://github.com/GoogleCloudPlatform/agent-starter-pack)
+    for help deploying ADK projects. The following command updates an existing
+    ADK project to prepare for deployment with Agent Engine: 
+
+    ```bash
+    uvx agent-starter-pack enhance --adk -d agent_engine
+    ```
+    
+    For more information on using Agent Starter Pack and its
+    command line tools command, see the
+    [CLI reference](https://googlecloudplatform.github.io/agent-starter-pack/cli/enhance.html)
+    and
+    [Development guide](https://googlecloudplatform.github.io/agent-starter-pack/guide/development-guide.html).
+
 ## Prerequisites
 
 Before you begin, ensure you have the following:
