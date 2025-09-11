@@ -68,6 +68,14 @@ Kubernetes Job with a hardened Pod configuration. This is the recommended
 executor for production environments on GKE where security and isolation are
 critical.
 
+**Key Benefits:**
+
+*   **Secure Sandboxing:** Executes code within a gVisor sandbox, providing strong kernel-level isolation between the code and the underlying host.
+*   **Ephemeral Environments:** Each code execution runs in a new, clean Kubernetes Job, preventing any state from one execution from affecting another.
+*   **Secure by Default:** Pods are configured with a strict security context, including running as a non-root user, having a read-only filesystem, and dropping all Linux capabilities.
+*   **Automatic Cleanup:** Completed Jobs and their Pods are automatically garbage collected by Kubernetes, preventing resource leaks.
+*   **Efficient Waiting:** Uses the Kubernetes `watch` API to wait for Job completion, avoiding inefficient polling.
+
 !!! note "Prerequisites"
 
     - You must have a GKE cluster with a **gVisor-enabled node pool**.
@@ -82,7 +90,11 @@ critical.
 
     ```py
     from google.adk.agents import LlmAgent
+    from google.adk.apps import App
     from google.adk.code_executors import GkeCodeExecutor
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
+    from google.genai import types
 
     # Initialize the executor, targeting the namespace where its ServiceAccount
     # has the required RBAC permissions.
@@ -98,6 +110,24 @@ critical.
         instruction="You are a helpful AI agent that writes and executes Python code.",
         code_executor=gke_executor,
     )
+
+    # Create an App and Runner
+    app = App(name="gke_coder_app", root_agent=gke_agent)
+    runner = Runner(app=app, session_service=InMemorySessionService())
+
+    # Create a session
+    session = runner.session_service.create_session(app_name=app.name, user_id="user1", session_id="session1")
+
+    # Run the agent
+    events = runner.run(
+        user_id="user1",
+        session_id="session1",
+        new_message=types.Content(parts=[types.Part(text="Calculate the 10th Fibonacci number.")])
+    )
+
+    for event in events:
+        if event.is_final_response():
+            print(event.content.parts[0].text)
     ```
 
 ### Vertex AI Search
