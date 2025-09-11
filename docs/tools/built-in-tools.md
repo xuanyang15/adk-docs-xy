@@ -80,9 +80,12 @@ critical.
 
 === "Python"
 
-    ```py
+    ```python
     from google.adk.agents import LlmAgent
+    from google.adk.apps import App
     from google.adk.code_executors import GkeCodeExecutor
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
 
     # Initialize the executor, targeting the namespace where its ServiceAccount
     # has the required RBAC permissions.
@@ -98,6 +101,25 @@ critical.
         instruction="You are a helpful AI agent that writes and executes Python code.",
         code_executor=gke_executor,
     )
+
+    # Create an App and a Runner to run the agent.
+    app = App(name="gke-app", root_agent=gke_agent)
+    runner = Runner(app=app, session_service=InMemorySessionService())
+
+    # Example of running the agent, which will use the GkeCodeExecutor.
+    # Make sure to replace with your actual user_id, session_id, and message.
+    #
+    # async for event in runner.run_async(
+    #     user_id="user-123",
+    #     session_id="session-456",
+    #     new_message=types.Content(
+    #         role="user",
+    #         parts=[types.Part(text="Calculate the 10th Fibonacci number.")]
+    #     ),
+    # ):
+    #     if event.is_final_response():
+    #         print(event.content.parts[0].text)
+
     ```
 
 ### Vertex AI Search
