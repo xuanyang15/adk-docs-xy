@@ -63,6 +63,33 @@ a2a_app = to_a2a(root_agent, port=8001)
 
 The `to_a2a()` function will even auto-generate an agent card in-memory behind-the-scenes by [extracting skills, capabilities, and metadata from the ADK agent](https://github.com/google/adk-python/blob/main/src/google/adk/a2a/utils/agent_card_builder.py), so that the well-known agent card is made available when the agent endpoint is served using `uvicorn`.
 
+### Using a Custom Agent Card
+
+While `to_a2a()` automatically generates an agent card, you can also provide your own. This is useful if you need to customize the agent card beyond what is automatically generated. The `agent_card` parameter in the `to_a2a` function accepts either a pre-built `AgentCard` object or a path to an agent card JSON file.
+
+#### Using a Pre-built `AgentCard` Object
+
+```python
+from google.adk.a2a.utils.agent_to_a2a import to_a2a
+from a2a.types import AgentCard
+
+my_agent_card = AgentCard(
+    name="my_custom_agent",
+    description="This is my custom agent.",
+    # ... other agent card fields
+)
+
+a2a_app = to_a2a(root_agent, agent_card=my_agent_card)
+```
+
+#### Using a Path to a JSON File
+
+```python
+from google.adk.a2a.utils.agent_to_a2a import to_a2a
+
+a2a_app = to_a2a(root_agent, agent_card="/path/to/my/agent_card.json")
+```
+
 Now let's dive into the sample code.
 
 ### 1. Getting the Sample Code { #getting-the-sample-code }
