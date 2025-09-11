@@ -28,7 +28,7 @@ First, you need to establish what the agent *is* and what it's *for*.
 
 * **`description` (Optional, Recommended for Multi-Agent):** Provide a concise
   summary of the agent's capabilities. This description is primarily used by
-  *other* LLM agents to determine if they should route a task to this agent.
+  *other* LLM agents to determine if they should route a a task to this agent.
   Make it specific enough to differentiate it from peers (e.g., "Handles
   inquiries about current billing statements," not just "Billing agent").
 
@@ -97,14 +97,14 @@ tells the agent:
         model="gemini-2.0-flash",
         name="capital_agent",
         description="Answers user questions about the capital city of a given country.",
-        instruction="""You are an agent that provides the capital city of a country.
+        instruction='''You are an agent that provides the capital city of a country.
     When a user asks for the capital of a country:
     1. Identify the country name from the user's query.
     2. Use the `get_capital_city` tool to find the capital.
     3. Respond clearly to the user, stating the capital city.
     Example Query: "What's the capital of {country}?"
     Example Response: "The capital of France is Paris."
-    """,
+    ''',
         # tools will be added next
     )
     ```
@@ -119,7 +119,7 @@ tells the agent:
             .name("capital_agent")
             .description("Answers user questions about the capital city of a given country.")
             .instruction(
-                """
+                '''
                 You are an agent that provides the capital city of a country.
                 When a user asks for the capital of a country:
                 1. Identify the country name from the user's query.
@@ -127,7 +127,7 @@ tells the agent:
                 3. Respond clearly to the user, stating the capital city.
                 Example Query: "What's the capital of {country}?"
                 Example Response: "The capital of France is Paris."
-                """)
+                ''')
             // tools will be added next
             .build();
     ```
@@ -156,7 +156,7 @@ on the conversation and its instructions.
     ```python
     # Define a tool function
     def get_capital_city(country: str) -> str:
-      """Retrieves the capital city for a given country."""
+      '''Retrieves the capital city for a given country.'''
       # Replace with actual logic (e.g., API call, database lookup)
       capitals = {"france": "Paris", "japan": "Tokyo", "canada": "Ottawa"}
       return capitals.get(country.lower(), f"Sorry, I don't know the capital of {country}.")
@@ -166,7 +166,7 @@ on the conversation and its instructions.
         model="gemini-2.0-flash",
         name="capital_agent",
         description="Answers user questions about the capital city of a given country.",
-        instruction="""You are an agent that provides the capital city of a country... (previous instruction text)""",
+        instruction='''You are an agent that provides the capital city of a country... (previous instruction text)''',
         tools=[get_capital_city] # Provide the function directly
     )
     ```
@@ -269,7 +269,7 @@ For scenarios requiring structured data exchange with an `LLM Agent`, the ADK pr
     
     structured_capital_agent = LlmAgent(
         # ... name, model, description
-        instruction="""You are a Capital Information Agent. Given a country, respond ONLY with a JSON object containing the capital. Format: {"capital": "capital_name"}""",
+        instruction='''You are a Capital Information Agent. Given a country, respond ONLY with a JSON object containing the capital. Format: {"capital": "capital_name"}''',
         output_schema=CapitalOutput, # Enforce JSON output
         output_key="found_capital"  # Store result in state['found_capital']
         # Cannot use tools=[get_capital_city] effectively here
@@ -298,7 +298,7 @@ For scenarios requiring structured data exchange with an `LLM Agent`, the ADK pr
         LlmAgent.builder()
             // ... name, model, description
             .instruction(
-                    "You are a Capital Information Agent. Given a country, respond ONLY with a JSON object containing the capital. Format: {\"capital\": \"capital_name\"}")
+                    ''''You are a Capital Information Agent. Given a country, respond ONLY with a JSON object containing the capital. Format: {\"capital\": \"capital_name\"}'''')
             .outputSchema(capitalOutput) // Enforce JSON output
             .outputKey("found_capital") // Store result in state.get("found_capital")
             // Cannot use tools(getCapitalCity) effectively here
@@ -413,6 +413,7 @@ from google.genai import types
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.adk.apps import App
 from google.adk.artifacts.in_memory_artifact_service import InMemoryArtifactService # Optional
 from google.adk.planners import BasePlanner, BuiltInPlanner, PlanReActPlanner
 from google.adk.models import LlmRequest
@@ -428,14 +429,14 @@ USER_ID = "1234"
 SESSION_ID = "session1234"
 
 def get_weather(city: str) -> dict:
-    """Retrieves the current weather report for a specified city.
+    '''Retrieves the current weather report for a specified city.
 
     Args:
         city (str): The name of the city for which to retrieve the weather report.
 
     Returns:
         dict: status and result or error msg.
-    """
+    '''
     if city.lower() == "new york":
         return {
             "status": "success",
@@ -452,14 +453,14 @@ def get_weather(city: str) -> dict:
 
 
 def get_current_time(city: str) -> dict:
-    """Returns the current time in a specified city.
+    '''Returns the current time in a specified city.
 
     Args:
         city (str): The name of the city for which to retrieve the current time.
 
     Returns:
         dict: status and result or error msg.
-    """
+    '''
 
     if city.lower() == "new york":
         tz_identifier = "America/New_York"
@@ -500,10 +501,11 @@ agent = LlmAgent(
     tools=[get_weather, get_current_time]
 )
 
-# Session and Runner
+# App and Runner
+app = App(name=APP_NAME, root_agent=agent)
 session_service = InMemorySessionService()
-session = session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID)
-runner = Runner(agent=agent, app_name=APP_NAME, session_service=session_service)
+session = session_service.create_session(app_name=app.name, user_id=USER_ID, session_id=SESSION_ID)
+runner = Runner(app=app, session_service=session_service)
 
 # Agent Interaction
 def call_agent(query):
