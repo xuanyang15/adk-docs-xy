@@ -403,6 +403,8 @@ Example for using built-in-planner:
 
 
 
+
+
 from dotenv import load_dotenv
 
 
@@ -411,6 +413,7 @@ import os
 
 from google.genai import types
 from google.adk.agents.llm_agent import LlmAgent
+from google.adk.apps import App
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.adk.artifacts.in_memory_artifact_service import InMemoryArtifactService # Optional
@@ -500,10 +503,16 @@ agent = LlmAgent(
     tools=[get_weather, get_current_time]
 )
 
+# Create an App
+app = App(
+    name=APP_NAME,
+    root_agent=agent,
+)
+
 # Session and Runner
 session_service = InMemorySessionService()
 session = session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID)
-runner = Runner(agent=agent, app_name=APP_NAME, session_service=session_service)
+runner = Runner(app=app, session_service=session_service)
 
 # Agent Interaction
 def call_agent(query):
