@@ -16,6 +16,7 @@
 import json # Needed for pretty printing dicts
 
 from google.adk.agents import LlmAgent
+from google.adk.apps import App
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
@@ -63,6 +64,7 @@ capital_agent_with_tool = LlmAgent(
     name="capital_agent_tool",
     description="Retrieves the capital city using a specific tool.",
     instruction="""You are a helpful agent that provides the capital city of a country using a tool.
+
 The user will provide the country name in a JSON format like {"country": "country_name"}.
 1. Extract the country name.
 2. Use the `get_capital_city` tool to find the capital.
@@ -97,15 +99,23 @@ session_service = InMemorySessionService()
 await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID_TOOL_AGENT)
 await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID_SCHEMA_AGENT)
 
+# Create an app for EACH agent
+capital_app = App(
+    name=APP_NAME,
+    root_agent=capital_agent_with_tool
+)
+structured_app = App(
+    name=APP_NAME,
+    root_agent=structured_info_agent_schema
+)
+
 # Create a runner for EACH agent
 capital_runner = Runner(
-    agent=capital_agent_with_tool,
-    app_name=APP_NAME,
+    app=capital_app,
     session_service=session_service
 )
 structured_runner = Runner(
-    agent=structured_info_agent_schema,
-    app_name=APP_NAME,
+    app=structured_app,
     session_service=session_service
 )
 
