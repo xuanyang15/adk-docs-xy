@@ -41,7 +41,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ADK_BOT_GITHUB_TOKEN }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          GOOGLE_GENAI_USE_VERTEXAI: 0
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GOOGLE_CLOUD_PROJECT }}
+          GOOGLE_CLOUD_LOCATION: ${{ secrets.GOOGLE_CLOUD_LOCATION }}
+          GOOGLE_GENAI_USE_VERTEXAI: 1
           DOC_OWNER: 'xuanyang15'
           DOC_REPO: 'adk-docs-xy'
           CODE_OWNER: 'google'
