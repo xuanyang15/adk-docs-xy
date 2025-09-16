@@ -32,7 +32,7 @@ SESSION_ID = "1234"
 GEMINI_MODEL = "gemini-2.0-flash"
 
 # Define a tool configuration to block any write operations
-tool_config = BigQueryToolConfig(write_mode=WriteMode.BLOCKED)
+tool_config = BigQueryToolConfig(write_mode=WriteMode.BLOCKED, location="us-west1")
 
 # Define a credentials config - in this example we are using application default
 # credentials
@@ -57,7 +57,7 @@ bigquery_agent = Agent(
     ),
     instruction="""\
         You are a data science agent with access to several BigQuery tools.
-        Make use of those tools to answer the user's questions.
+        Make use of those tools to answer the user\'s questions.
     """,
     tools=[bigquery_toolset],
 )
