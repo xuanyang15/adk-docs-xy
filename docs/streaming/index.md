@@ -51,6 +51,7 @@ text, audio, and video inputs, and they can provide text and audio output.
 
     - [Custom Audio Streaming app sample (SSE)](custom-streaming.md)
     - [Custom Audio Streaming app sample (WebSockets)](custom-streaming-ws.md)
+    - [Live agent API server example](https://github.com/google/adk-python/blob/main/contributing/samples/live_agent_api_server_example/readme.md)
 
 -   :material-console-line: **Bidi-streaming development guide series**
 
