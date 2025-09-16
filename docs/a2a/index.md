@@ -2,7 +2,7 @@
 
 With Agent Development Kit (ADK), you can build complex multi-agent systems where different agents need to collaborate and interact using [Agent2Agent (A2A) Protocol](https://a2a-protocol.org/)! This section provides a comprehensive guide to building powerful multi-agent systems where agents can communicate and collaborate securely and efficiently.
 
-Navigate through the guides below to learn about ADK's A2A capabilities:
+Navigate through the guides below to learn about ADK\'s A2A capabilities:
 
   **[Introduction to A2A](./intro.md)**
 
@@ -15,6 +15,10 @@ Navigate through the guides below to learn about ADK's A2A capabilities:
   **[A2A Quickstart (Consuming)](./quickstart-consuming.md)**
 
   This quickstart covers: **"There is a remote agent, how do I let my ADK agent use it via A2A?"**.
+
+  **[A2A Logging](./logging.md)**
+
+  Learn how to enable and interpret the detailed and structured logs for A2A communication, which is invaluable for debugging and monitoring multi-agent systems.
 
   [**Official Website for Agent2Agent (A2A) Protocol**](https://a2a-protocol.org/)
 

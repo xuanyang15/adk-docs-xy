@@ -41,7 +41,7 @@ You can clone and navigate to the [**`a2a_basic`** sample](https://github.com/go
 git clone https://github.com/google/adk-python.git
 ```
 
-As you'll see, the folder structure is as follows:
+As you\'ll see, the folder structure is as follows:
 
 ```text
 a2a_basic/
@@ -70,7 +70,7 @@ a2a_basic/
 
 ### 2. Start the Remote Prime Agent server { #start-the-remote-prime-agent-server }
 
-To show how your ADK agent can consume a remote agent via A2A, you'll first need to start a remote agent server, which will host the prime agent (under `check_prime_agent`).
+To show how your ADK agent can consume a remote agent via A2A, you\'ll first need to start a remote agent server, which will host the prime agent (under `check_prime_agent`).
 
 ```bash
 # Start the remote a2a server that serves the check_prime_agent on port 8001
@@ -82,10 +82,10 @@ adk api_server --a2a --port 8001 contributing/samples/a2a_basic/remote_a2a
     ```bash
     adk api_server --a2a --port 8001 contributing/samples/a2a_basic/remote_a2a --log_level debug
     ```
-    This will give richer logs for you to inspect when testing your agents.
+    This will give richer logs for you to inspect when testing your agents. To learn more about A2A logging, see the [A2A Logging](./logging.md) guide.
 
 ??? note "Why use port 8001?"
-    In this quickstart, when testing locally, your agents will be using localhost, so the `port` for the A2A server for the exposed agent (the remote, prime agent) must be different from the consuming agent's port. The default port for `adk web` where you will interact with the consuming agent is `8000`, which is why the A2A server is created using a separate port, `8001`.
+    In this quickstart, when testing locally, your agents will be using localhost, so the `port` for the A2A server for the exposed agent (the remote, prime agent) must be different from the consuming agent\'s port. The default port for `adk web` where you will interact with the consuming agent is `8000`, which is why the A2A server is created using a separate port, `8001`.
 
 Once executed, you should see something like:
 
@@ -127,7 +127,7 @@ In the sample, the `check_prime_agent` already has an agent card provided:
 
 ??? note "More info on agent cards in ADK"
 
-    In ADK, you can use a `to_a2a(root_agent)` wrapper which automatically generates an agent card for you. If you're interested in learning more about how to expose your existing agent so others can use it, then please look at the [A2A Quickstart (Exposing)](quickstart-exposing.md) tutorial. 
+    In ADK, you can use a `to_a2a(root_agent)` wrapper which automatically generates an agent card for you. If you\'re interested in learning more about how to expose your existing agent so others can use it, then please look at the [A2A Quickstart (Exposing)](quickstart-exposing.md) tutorial. 
 
 ### 4. Run the Main (Consuming) Agent { #run-the-main-consuming-agent }
 
@@ -217,13 +217,13 @@ Bot: Yes, 7 is a prime number.
 This interaction uses both the local Roll Agent and the remote Prime Agent:
 
 ```text
-User: Roll a 10-sided die and check if it's prime
+User: Roll a 10-sided die and check if it\'s prime
 Bot: I rolled an 8 for you.
 Bot: 8 is not a prime number.
 ```
 
 ## Next Steps
 
-Now that you have created an agent that's using a remote agent via an A2A server, the next step is to learn how to connect to it from another agent.
+Now that you have created an agent that\'s using a remote agent via an A2A server, the next step is to learn how to connect to it from another agent.
 
 - [**A2A Quickstart (Exposing)**](./quickstart-exposing.md): Learn how to expose your existing agent so that other agents can use it via the A2A Protocol.
