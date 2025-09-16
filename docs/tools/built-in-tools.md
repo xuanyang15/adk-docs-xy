@@ -74,9 +74,9 @@ The following requirements must be met to successfully deploy your ADK project
 with the GKE Code Executor tool:
 
 - GKE cluster with a **gVisor-enabled node pool**.
-- Agent's service account requires specific **RBAC permissions**, which allow it to:
+- Agent\'s service account requires specific **RBAC permissions**, which allow it to:
     - Create, watch, and delete **Jobs** for each execution request.
-    - Manage **ConfigMaps** to inject code into the Job's pod.
+    - Manage **ConfigMaps** to inject code into the Job\'s pod.
     - List **Pods** and read their **logs** to retrieve the execution result
 - Install the client library with GKE extras: `pip install google-adk[gke]`
 
@@ -153,6 +153,18 @@ They are packaged in the toolset `BigQueryToolset`.
 --8<-- "examples/python/snippets/tools/built-in-tools/bigquery.py"
 ```
 
+### Spanner
+
+These are a set of tools aimed to provide integration with Spanner, namely:
+
+* **`similarity_search`**: Performs vector similarity searches in Spanner.
+
+They are packaged in the toolset `SpannerToolset`.
+
+```py
+--8<-- "examples/python/snippets/tools/built-in-tools/spanner.py"
+```
+
 ## Use Built-in tools with other tools
 
 The following code sample demonstrates how to use multiple built-in tools or how
@@ -168,18 +180,18 @@ to use built-in tools with other tools by using multiple agents:
     
 
     search_agent = Agent(
-        model='gemini-2.0-flash',
-        name='SearchAgent',
+        model=\'gemini-2.0-flash\',
+        name=\'SearchAgent\',
         instruction="""
-        You're a specialist in Google Search
+        You\'re a specialist in Google Search
         """,
         tools=[google_search],
     )
     coding_agent = Agent(
-        model='gemini-2.0-flash',
-        name='CodeAgent',
+        model=\'gemini-2.0-flash\',
+        name=\'CodeAgent\',
         instruction="""
-        You're a specialist in Code Execution
+        You\'re a specialist in Code Execution
         """,
         code_executor=BuiltInCodeExecutor(),
     )
@@ -212,7 +224,7 @@ to use built-in tools with other tools by using multiple agents:
             LlmAgent.builder()
                 .model(MODEL_ID)
                 .name("SearchAgent")
-                .instruction("You're a specialist in Google Search")
+                .instruction("You\'re a specialist in Google Search")
                 .tools(new GoogleSearchTool()) // Instantiate GoogleSearchTool
                 .build();
     
@@ -222,7 +234,7 @@ to use built-in tools with other tools by using multiple agents:
             LlmAgent.builder()
                 .model(MODEL_ID)
                 .name("CodeAgent")
-                .instruction("You're a specialist in Code Execution")
+                .instruction("You\'re a specialist in Code Execution")
                 .tools(new BuiltInCodeExecutionTool()) // Instantiate BuiltInCodeExecutionTool
                 .build();
 
@@ -239,7 +251,7 @@ to use built-in tools with other tools by using multiple agents:
                 .build();
 
         // Note: This sample only demonstrates the agent definitions.
-        // To run these agents, you'd need to integrate them with a Runner and SessionService,
+        // To run these agents, you\'d need to integrate them with a Runner and SessionService,
         // similar to the previous examples.
         System.out.println("Agents defined successfully:");
         System.out.println("  Root Agent: " + rootAgent.name());
@@ -279,7 +291,7 @@ to use built-in tools with other tools by using multiple agents:
             LlmAgent.builder()
                 .model(MODEL_ID)
                 .name("SearchAgent")
-                .instruction("You're a specialist in Google Search")
+                .instruction("You\'re a specialist in Google Search")
                 .tools(new GoogleSearchTool(), new YourCustomTool()) // <-- not supported
                 .build();
     ```
@@ -295,18 +307,18 @@ is **not** currently supported:
 
     ```py
     search_agent = Agent(
-        model='gemini-2.0-flash',
-        name='SearchAgent',
+        model=\'gemini-2.0-flash\',
+        name=\'SearchAgent\',
         instruction="""
-        You're a specialist in Google Search
+        You\'re a specialist in Google Search
         """,
         tools=[google_search],
     )
     coding_agent = Agent(
-        model='gemini-2.0-flash',
-        name='CodeAgent',
+        model=\'gemini-2.0-flash\',
+        name=\'CodeAgent\',
         instruction="""
-        You're a specialist in Code Execution
+        You\'re a specialist in Code Execution
         """,
         code_executor=BuiltInCodeExecutor(),
     )
@@ -328,7 +340,7 @@ is **not** currently supported:
         LlmAgent.builder()
             .model("gemini-2.0-flash")
             .name("SearchAgent")
-            .instruction("You're a specialist in Google Search")
+            .instruction("You\'re a specialist in Google Search")
             .tools(new GoogleSearchTool())
             .build();
 
@@ -336,7 +348,7 @@ is **not** currently supported:
         LlmAgent.builder()
             .model("gemini-2.0-flash")
             .name("CodeAgent")
-            .instruction("You're a specialist in Code Execution")
+            .instruction("You\'re a specialist in Code Execution")
             .tools(new BuiltInCodeExecutionTool())
             .build();
     
