@@ -15,19 +15,19 @@ AI agents.
 
 With bidi-streaming (live) mode, you can provide end users with the experience of natural,
 human-like voice conversations, including the ability for the user to interrupt
-the agent's responses with voice commands. Agents with streaming can process
+the agent\'s responses with voice commands. Agents with streaming can process
 text, audio, and video inputs, and they can provide text and audio output.
 
 <div class="video-grid">
   <div class="video-item">
     <div class="video-container">
-      <iframe src="https://www.youtube-nocookie.com/embed/Tu7-voU7nnw?si=RKs7EWKjx0bL96i5" title="Shopper's Concierge" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <iframe src="https://www.youtube-nocookie.com/embed/Tu7-voU7nnw?si=RKs7EWKjx0bL96i5" title="Shopper\'s Concierge" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
   </div>
 
   <div class="video-item">
     <div class="video-container">
-      <iframe src="https://www.youtube-nocookie.com/embed/LwHPYyw7u6U?si=xxIEhnKBapzQA6VV" title="Shopper's Concierge" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <iframe src="https://www.youtube-nocookie.com/embed/LwHPYyw7u6U?si=xxIEhnKBapzQA6VV" title="Shopper\'s Concierge" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
   </div>
 </div>
@@ -38,7 +38,7 @@ text, audio, and video inputs, and they can provide text and audio output.
 
     ---
 
-    In this quickstart, you'll build a simple agent and use streaming in ADK to
+    In this quickstart, you\'ll build a simple agent and use streaming in ADK to
     implement low-latency and bidirectional voice and video communication.
 
     - [Quickstart (Bidi-streaming)](../get-started/streaming/quickstart-streaming.md)
@@ -51,6 +51,7 @@ text, audio, and video inputs, and they can provide text and audio output.
 
     - [Custom Audio Streaming app sample (SSE)](custom-streaming.md)
     - [Custom Audio Streaming app sample (WebSockets)](custom-streaming-ws.md)
+    - [Live agent API server example with audio](https://github.com/google/adk-python/blob/main/contributing/samples/live_agent_api_server_example/readme.md)
 
 -   :material-console-line: **Bidi-streaming development guide series**
 
