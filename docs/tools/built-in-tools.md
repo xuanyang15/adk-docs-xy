@@ -145,13 +145,62 @@ These are a set of tools aimed to provide integration with BigQuery, namely:
 * **`execute_sql`**: Runs a SQL query in BigQuery and fetch the result.
 * **`ask_data_insights`**: Answers questions about data in BigQuery tables using natural language.
 
-They are packaged in the toolset `BigQueryToolset`.
-
+They are packaged in the toolset `BigQueryToolset`. You can also specify the `location` for the BigQuery data.
 
 
 ```py
 --8<-- "examples/python/snippets/tools/built-in-tools/bigquery.py"
 ```
+
+### Spanner
+
+The `SpannerToolset` provides a set of tools for interacting with Spanner databases. The main tool in this toolset is `similarity_search`.
+
+* **`similarity_search`**: Performs a vector similarity search in Spanner. This tool embeds a text query, then uses the embedding vector to find similar items in a Spanner table.
+
+To use the `similarity_search` tool, your Spanner table must contain a column with pre-calculated embeddings. The tool uses a configured embedding service to convert the input text query into a vector for the search.
+
+```py
+from google.adk.tools.spanner import SpannerToolset
+
+# Initialize the Spanner toolset
+spanner_toolset = SpannerToolset(
+    project_id="my-project",
+    instance_id="my-instance",
+    database_id="my-database",
+)
+
+# Example of using similarity_search in an agent
+from google.adk.agents import LlmAgent
+
+spanner_agent = LlmAgent(
+    name="spanner_agent",
+    model="gemini-2.0-flash",
+    instruction="You are an expert in Spanner similarity search.",
+    tools=[spanner_toolset],
+)
+
+# The agent can now use the similarity_search tool
+# to answer questions that require vector search.
+# For example:
+# "Find products similar to 'eco-friendly cleaning supplies'."
+```
+
+The `similarity_search` tool takes the following parameters:
+
+*   `table_name`: The name of the table to search.
+*   `query`: The text query to search for.
+*   `embedding_column_to_search`: The name of the column containing the embeddings.
+*   `columns`: A list of other columns to return in the results.
+*   `embedding_options`: A dictionary specifying the embedding model to use.
+    *   `spanner_embedding_model_name`: For GoogleSQL dialect databases, the name of the embedding model registered in Spanner.
+    *   `vertex_ai_embedding_model_endpoint`: For PostgreSQL dialect databases, the endpoint of the Vertex AI embedding model.
+*   `additional_filter` (optional): A SQL `WHERE` clause to further filter the results.
+*   `search_options` (optional): A dictionary for search customization:
+    *   `top_k`: The number of results to return (default: 4).
+    *   `distance_type`: The distance metric to use (e.g., `COSINE_DISTANCE`, `EUCLIDEAN_DISTANCE`).
+    *   `nearest_neighbors_algorithm`: The search algorithm to use (`EXACT_NEAREST_NEIGHBORS` or `APPROXIMATE_NEAREST_NEIGHBORS`).
+    *   `num_leaves_to_search`: For approximate search, the number of leaves to search in the vector index.
 
 ## Use Built-in tools with other tools
 
