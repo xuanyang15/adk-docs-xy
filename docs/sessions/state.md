@@ -86,7 +86,7 @@ from google.adk.agents import LlmAgent
 
 story_generator = LlmAgent(
     name="StoryGenerator",
-    model="gemini-2.0-flash",
+    model="gemini-1.5-flash",
     instruction="""Write a short story about a cat, focusing on the theme: {topic}."""
 )
 
@@ -99,7 +99,7 @@ story_generator = LlmAgent(
 
 * Key Existence: Ensure that the key you reference in the instruction string exists in the session.state. If the key is missing, the agent will throw an error. To use a key that may or may not be present, you can include a question mark (?) after the key (e.g. {topic?}).
 * Data Types: The value associated with the key should be a string or a type that can be easily converted to a string.
-* Escaping: If you need to use literal curly braces in your instruction (e.g., for JSON formatting), you'll need to escape them.
+* Escaping: To use literal curly braces in your instruction (e.g., `{{not a state variable}}`), you must double them up. If you need more complex logic, consider using an `InstructionProvider`.
 
 #### Bypassing State Injection with `InstructionProvider`
 
@@ -122,7 +122,7 @@ The `InstructionProvider` function receives a `ReadonlyContext` object, which yo
         return "This is an instruction with {{literal_braces}} that will not be replaced."
 
     agent = LlmAgent(
-        model="gemini-2.0-flash",
+        model="gemini-1.5-flash",
         name="template_helper_agent",
         instruction=my_instruction_provider
     )
@@ -143,7 +143,7 @@ If you want to both use an `InstructionProvider` *and* inject state into your in
         return await instructions_utils.inject_session_state(template, context)
 
     agent = LlmAgent(
-        model="gemini-2.0-flash",
+        model="gemini-1.5-flash",
         name="dynamic_template_helper_agent",
         instruction=my_dynamic_instruction_provider
     )
@@ -168,7 +168,7 @@ This direct injection method is specific to LlmAgent instructions. Refer to the 
 
 State should **always** be updated as part of adding an `Event` to the session history using `session_service.append_event()`. This ensures changes are tracked, persistence works correctly, and updates are thread-safe.
 
-**1\. The Easy Way: `output_key` (for Agent Text Responses)**
+**1. The Easy Way: `output_key` (for Agent Text Responses)**
 
 This is the simplest method for saving an agent's final text response directly into the state. When defining your `LlmAgent`, specify the `output_key`:
 
@@ -183,7 +183,7 @@ This is the simplest method for saving an agent's final text response directly i
     # Define agent with output_key
     greeting_agent = LlmAgent(
         name="Greeter",
-        model="gemini-2.0-flash", # Use a valid model
+        model="gemini-1.5-flash", # Use a valid model
         instruction="Generate a short, friendly greeting.",
         output_key="last_greeting" # Save response to state['last_greeting']
     )
@@ -205,14 +205,14 @@ This is the simplest method for saving an agent's final text response directly i
     # Runner handles calling append_event, which uses the output_key
     # to automatically create the state_delta.
     user_message = Content(parts=[Part(text="Hello")])
-    for event in runner.run(user_id=user_id,
-                            session_id=session_id,
-                            new_message=user_message):
+    async for event in runner.run_async(user_id=user_id,
+                                     session_id=session_id,
+                                     new_message=user_message):
         if event.is_final_response():
           print(f"Agent responded.") # Response text is also in event.content
 
     # --- Check Updated State ---
-    updated_session = await session_service.get_session(app_name=APP_NAME, user_id=USER_ID, session_id=session_id)
+    updated_session = await session_service.get_session(app_name=app_name, user_id=user_id, session_id=session_id)
     print(f"State after agent run: {updated_session.state}")
     # Expected output might include: {'last_greeting': 'Hello there! How can I help you today?'}
     ```
@@ -225,7 +225,7 @@ This is the simplest method for saving an agent's final text response directly i
 
 Behind the scenes, the `Runner` uses the `output_key` to create the necessary `EventActions` with a `state_delta` and calls `append_event`.
 
-**2\. The Standard Way: `EventActions.state_delta` (for Complex Updates)**
+**2. The Standard Way: `EventActions.state_delta` (for Complex Updates)**
 
 For more complex scenarios (updating multiple keys, non-string values, specific scopes like `user:` or `app:`, or updates not tied directly to the agent's final text), you manually construct the `state_delta` within `EventActions`.
 
