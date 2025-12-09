@@ -29,6 +29,7 @@ The foundation for structuring multi-agent systems is the parent-child relations
 
 * **Establishing Hierarchy:** You create a tree structure by passing a list of agent instances to the `sub_agents` argument when initializing a parent agent. ADK automatically sets the `parent_agent` attribute on each child agent during initialization.
 * **Single Parent Rule:** An agent instance can only be added as a sub-agent once. Attempting to assign a second parent will result in a `ValueError`.
+* **Unique Sub-Agent Names:** All sub-agents of a parent agent must have unique names. The framework validates this, and will raise a `ValueError` if duplicate names are detected among sub-agents.
 * **Importance:** This hierarchy defines the scope for [Workflow Agents](#workflow-agents-as-orchestrators) and influences the potential targets for LLM-Driven Delegation. You can navigate the hierarchy using `agent.parent_agent` or find descendants using `agent.find_agent(name)`.
 
 === "Python"
@@ -348,29 +349,37 @@ Leverages an [`LlmAgent`](llm-agents.md)'s understanding to dynamically route ta
 
 * **Mechanism:** The agent's LLM generates a specific function call: `transfer_to_agent(agent_name='target_agent_name')`.
 * **Handling:** The `AutoFlow`, used by default when sub-agents are present or transfer isn't disallowed, intercepts this call. It identifies the target agent using `root_agent.find_agent()` and updates the `InvocationContext` to switch execution focus.
+* **Robustness with `TransferToAgentTool`**: To make this process more reliable, ADK provides the `TransferToAgentTool`. This tool wraps the standard `transfer_to_agent` function and adds enum constraints to the `agent_name` parameter. This prevents the LLM from hallucinating or calling non-existent agent names by restricting its choices to a predefined list of valid sub-agents, significantly reducing runtime errors.
 * **Requires:** The calling `LlmAgent` needs clear `instructions` on when to transfer, and potential target agents need distinct `description`s for the LLM to make informed decisions. Transfer scope (parent, sub-agent, siblings) can be configured on the `LlmAgent`.
 * **Nature:** Dynamic, flexible routing based on LLM interpretation.
 
 === "Python"
 
     ```python
-    # Conceptual Setup: LLM Transfer
+    # Conceptual Setup: LLM Transfer with TransferToAgentTool
     from google.adk.agents import LlmAgent
+    from google.adk.tools import TransferToAgentTool
 
     booking_agent = LlmAgent(name="Booker", description="Handles flight and hotel bookings.")
     info_agent = LlmAgent(name="Info", description="Provides general information and answers questions.")
+
+    # The TransferToAgentTool is initialized with the names of the valid sub-agents
+    transfer_tool = TransferToAgentTool(
+        agent_names=[booking_agent.name, info_agent.name]
+    )
 
     coordinator = LlmAgent(
         name="Coordinator",
         model="gemini-2.0-flash",
         instruction="You are an assistant. Delegate booking tasks to Booker and info requests to Info.",
         description="Main coordinator.",
-        # AutoFlow is typically used implicitly here
+        tools=[transfer_tool],  # Include the transfer tool
         sub_agents=[booking_agent, info_agent]
     )
     # If coordinator receives "Book a flight", its LLM should generate:
     # FunctionCall(name='transfer_to_agent', args={'agent_name': 'Booker'})
     # ADK framework then routes execution to booking_agent.
+    # The enum constraint in TransferToAgentTool ensures the LLM can only pick 'Booker' or 'Info'.
     ```
 
 === "Java"
@@ -483,7 +492,7 @@ Allows an [`LlmAgent`](llm-agents.md) to treat another `BaseAgent` instance as a
 
         Event responseEvent = Event.builder()
             .author(this.name())
-            .content(Content.fromParts(Part.fromText("\b...")))
+            .content(Content.fromParts(Part.fromText("...")))
             .build();
 
         return Flowable.just(responseEvent);
@@ -557,16 +566,21 @@ By combining ADK's composition primitives, you can implement various established
     ```python
     # Conceptual Code: Coordinator using LLM Transfer
     from google.adk.agents import LlmAgent
+    from google.adk.tools import TransferToAgentTool
 
     billing_agent = LlmAgent(name="Billing", description="Handles billing inquiries.")
     support_agent = LlmAgent(name="Support", description="Handles technical support requests.")
+    
+    transfer_tool = TransferToAgentTool(
+        agent_names=[billing_agent.name, support_agent.name]
+    )
 
     coordinator = LlmAgent(
         name="HelpDeskCoordinator",
         model="gemini-2.0-flash",
         instruction="Route user requests: Use Billing agent for payment issues, Support agent for technical problems.",
         description="Main help desk router.",
-        # allow_transfer=True is often implicit with sub_agents in AutoFlow
+        tools=[transfer_tool],
         sub_agents=[billing_agent, support_agent]
     )
     # User asks "My payment failed" -> Coordinator's LLM should call transfer_to_agent(agent_name='Billing')

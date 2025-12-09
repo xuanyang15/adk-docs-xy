@@ -667,7 +667,7 @@ A more robust approach is to build an **Agent Team**. This involves:
 1. Define simple tools for handling greetings (`say_hello`) and farewells (`say_goodbye`).  
 2. Create two new specialized sub-agents: `greeting_agent` and `farewell_agent`.  
 3. Update our main weather agent (`weather_agent_v2`) to act as the **root agent**.  
-4. Configure the root agent with its sub-agents, enabling **automatic delegation**.  
+4. Configure the root agent with its sub-agents, enabling **automatic delegation** using the `TransferToAgentTool`.
 5. Test the delegation flow by sending different types of requests to the root agent.
 
 ---
@@ -727,6 +727,7 @@ Now, create the `Agent` instances for our specialists. Notice their highly focus
 
 ```python
 # @title Define Greeting and Farewell Sub-Agents
+from google.adk.tools import TransferToAgentTool
 
 # If you want to use models other than Gemini, Ensure LiteLlm is imported and API keys are set (from Step 0/2)
 # from google.adk.models.lite_llm import LiteLlm
@@ -778,12 +779,13 @@ except Exception as e:
 
 Now, we upgrade our `weather_agent`. The key changes are:
 
-* Adding the `sub_agents` parameter: We pass a list containing the `greeting_agent` and `farewell_agent` instances we just created.  
-* Updating the `instruction`: We explicitly tell the root agent *about* its sub-agents and *when* it should delegate tasks to them.
+* Adding the `sub_agents` parameter: We pass a list containing the `greeting_agent` and `farewell_agent` instances we just created.
+* Using the `TransferToAgentTool`: We create an instance of `TransferToAgentTool` with the names of our sub-agents and add it to the root agent's tools.
+* Updating the `instruction`: We explicitly tell the root agent *about* its sub-agents and instruct it to use the `transfer_to_agent` tool for delegation.
 
-**Key Concept: Automatic Delegation (Auto Flow)** By providing the `sub_agents` list, ADK enables automatic delegation. When the root agent receives a user query, its LLM considers not only its own instructions and tools but also the `description` of each sub-agent. If the LLM determines that a query aligns better with a sub-agent's described capability (e.g., "Handles simple greetings"), it will automatically generate a special internal action to *transfer control* to that sub-agent for that turn. The sub-agent then processes the query using its own model, instructions, and tools.
+**Key Concept: Delegation with `TransferToAgentTool`** By providing the `sub_agents` list and the `TransferToAgentTool`, we set up a robust delegation system. When the root agent receives a user query, its LLM considers its own instructions and tools, including the `transfer_to_agent` tool. The `TransferToAgentTool` constrains the `agent_name` parameter to only the names of the sub-agents, preventing the LLM from hallucinating non-existent agents. If the LLM determines a query matches a sub-agent's `description`, it will call the `transfer_to_agent` tool with the correct agent name, and ADK will transfer control to that sub-agent.
 
-**Best Practice:** Ensure the root agent's instructions clearly guide its delegation decisions. Mention the sub-agents by name and describe the conditions under which delegation should occur.
+**Best Practice:** Ensure the root agent's instructions clearly guide its delegation decisions. Mention the sub-agents by name and describe the conditions under which the `transfer_to_agent` tool should be used.
 
 
 ```python
@@ -797,6 +799,11 @@ runner_root = None # Initialize runner
 if greeting_agent and farewell_agent and 'get_weather' in globals():
     # Let's use a capable Gemini model for the root agent to handle orchestration
     root_agent_model = MODEL_GEMINI_2_0_FLASH
+    
+    # Create the TransferToAgentTool with the names of the sub-agents
+    transfer_tool = TransferToAgentTool(
+        agent_names=[greeting_agent.name, farewell_agent.name]
+    )
 
     weather_agent_team = Agent(
         name="weather_agent_v2", # Give it a new version name
@@ -808,9 +815,10 @@ if greeting_agent and farewell_agent and 'get_weather' in globals():
                     "1. 'greeting_agent': Handles simple greetings like 'Hi', 'Hello'. Delegate to it for these. "
                     "2. 'farewell_agent': Handles simple farewells like 'Bye', 'See you'. Delegate to it for these. "
                     "Analyze the user's query. If it's a greeting, delegate to 'greeting_agent'. If it's a farewell, delegate to 'farewell_agent'. "
+                    "Use the 'transfer_to_agent' tool to delegate. "
                     "If it's a weather request, handle it yourself using 'get_weather'. "
                     "For anything else, respond appropriately or state you cannot handle it.",
-        tools=[get_weather], # Root agent still needs the weather tool for its core task
+        tools=[get_weather, transfer_tool], # Root agent has weather tool and transfer tool
         # Key change: Link the sub-agents here!
         sub_agents=[greeting_agent, farewell_agent]
     )
@@ -829,7 +837,7 @@ else:
 
 **4\. Interact with the Agent Team**
 
-Now that we've defined our root agent (`weather_agent_team` - *Note: Ensure this variable name matches the one defined in the previous code block, likely `# @title Define the Root Agent with Sub-Agents`, which might have named it `root_agent`*) with its specialized sub-agents, let's test the delegation mechanism.
+Now that we've defined our root agent (`weather_agent_team`) with its specialized sub-agents, let's test the delegation mechanism.
 
 The following code block will:
 
@@ -842,10 +850,11 @@ The following code block will:
 We expect the following flow:
 
 1.  The "Hello there!" query goes to `runner_agent_team`.
-2.  The root agent (`weather_agent_team`) receives it and, based on its instructions and the `greeting_agent`'s description, delegates the task.
+2.  The root agent (`weather_agent_team`) receives it and, based on its instructions, uses the `transfer_to_agent` tool to delegate the task to the `greeting_agent`.
 3.  `greeting_agent` handles the query, calls its `say_hello` tool, and generates the response.
 4.  The "What is the weather in New York?" query is *not* delegated and is handled directly by the root agent using its `get_weather` tool.
-5.  The "Thanks, bye!" query is delegated to the `farewell_agent`, which uses its `say_goodbye` tool.
+5.  The "Thanks, bye!" query is delegated to the `farewell_agent` using the `transfer_to_agent` tool, which then uses its `say_goodbye` tool.
+
 
 
 
