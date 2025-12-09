@@ -143,6 +143,7 @@ Understanding artifacts involves grasping a few key components: the service that
 
     ```py
     from google.adk.runners import Runner
+    from google.adk.apps import App
     from google.adk.artifacts import InMemoryArtifactService # Or GcsArtifactService
     from google.adk.agents import LlmAgent # Any agent
     from google.adk.sessions import InMemorySessionService
@@ -151,10 +152,14 @@ Understanding artifacts involves grasping a few key components: the service that
     my_agent = LlmAgent(name="artifact_user_agent", model="gemini-2.0-flash")
     artifact_service = InMemoryArtifactService() # Choose an implementation
     session_service = InMemorySessionService()
+    
+    app = App(
+        name="my_artifact_app",
+        root_agent=my_agent
+    )
 
     runner = Runner(
-        agent=my_agent,
-        app_name="my_artifact_app",
+        app=app,
         session_service=session_service,
         artifact_service=artifact_service # Provide the service instance here
     )
@@ -338,6 +343,7 @@ Before you can use any artifact methods via the context objects, you **must** pr
 
     ```python
     from google.adk.runners import Runner
+    from google.adk.apps import App
     from google.adk.artifacts import InMemoryArtifactService # Or GcsArtifactService
     from google.adk.agents import LlmAgent
     from google.adk.sessions import InMemorySessionService
@@ -347,11 +353,16 @@ Before you can use any artifact methods via the context objects, you **must** pr
 
     # Instantiate the desired artifact service
     artifact_service = InMemoryArtifactService()
+    
+    # Create an App
+    app = App(
+        name="my_artifact_app",
+        root_agent=my_agent
+    )
 
     # Provide it to the Runner
     runner = Runner(
-        agent=agent,
-        app_name="artifact_app",
+        app=app,
         session_service=InMemorySessionService(),
         artifact_service=artifact_service # Service must be provided here
     )
