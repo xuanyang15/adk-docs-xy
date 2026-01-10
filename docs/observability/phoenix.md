@@ -63,6 +63,7 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from google.adk.agents import Agent
+from google.adk.apps import App
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 
@@ -102,7 +103,9 @@ agent = Agent(
 app_name = "weather_app"
 user_id = "test_user"
 session_id = "test_session"
-runner = InMemoryRunner(agent=agent, app_name=app_name)
+
+app = App(name=app_name, root_agent=agent)
+runner = InMemoryRunner(app=app)
 session_service = runner.session_service
 
 await session_service.create_session(
