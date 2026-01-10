@@ -188,6 +188,7 @@ If you want to fully customize your ADK agent runtime, you can enable cloud trac
 ```python
 # agent_runner.py
 
+from google.adk.apps import App
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from weather_agent.agent import root_agent as weather_agent
@@ -209,7 +210,8 @@ provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
 
 session_service = InMemorySessionService()
-runner = Runner(agent=weather_agent, app_name=APP_NAME, session_service=session_service)
+app = App(name=APP_NAME, root_agent=weather_agent)
+runner = Runner(app=app, session_service=session_service)
 
 
 async def main():
