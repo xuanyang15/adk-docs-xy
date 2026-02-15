@@ -63,6 +63,7 @@ root_agent = youtube_shorts_agent
 from google.genai import types
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
+from google.adk.apps import App
 from util import load_instruction_from_file
 
 # Load .env
@@ -80,7 +81,8 @@ SESSION_ID = "123344"
 async def setup_session_and_runner():
     session_service = InMemorySessionService()
     session = await session_service.create_session(app_name=APP_NAME, user_id=USER_ID, session_id=SESSION_ID)
-    runner = Runner(agent=youtube_shorts_agent, app_name=APP_NAME, session_service=session_service)
+    app = App(name=APP_NAME, root_agent=youtube_shorts_agent)
+    runner = Runner(app=app, session_service=session_service)
     return session, runner
 
 
